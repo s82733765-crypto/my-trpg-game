@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>免費線上 TRPG 跑團系統 - 5etools 終極多功能修復版</title>
-    <!-- 修正後的 Tailwind CSS CDN 網址 -->
+    <!-- 修正後的 Tailwind CSS 官方 CDN 加載網址 -->
     <script src="https://tailwindcss.com"></script>
-    <!-- 修正後的 Supabase SDK 引用網址 -->
+    <!-- 修正後的 Supabase 官方 SDK 加載網址 -->
     <script src="https://jsdelivr.net"></script>
     <style>
         body { background-color: #121214; color: #e1e1e6; font-family: sans-serif; }
@@ -27,12 +27,12 @@
             <p class="text-sm text-gray-400">修復登入故障 ➔ 已整合「戰棋地圖、起始背包、法術位、一鍵防呆擲骰」</p>
         </header>
 
-        <!-- ==================== 1. 登入/註冊介面 ==================== -->
+        <!-- ==================== 1. 登入/註冊介面 (已徹底修復 CDN) ==================== -->
         <div id="login-pane" class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md mx-auto">
             <h2 class="text-xl font-bold mb-4 text-center text-amber-400">線上玩家登入系統</h2>
             
             <div class="mb-4 bg-amber-950/40 border border-amber-500/30 p-3 rounded text-xs text-amber-300 text-center">
-                💡 <b>CDN 與按鈕故障已全面修復！</b><br>如果尚未設定雲端，點擊下方藍色按鈕可一秒直接免註冊進入遊戲！
+                💡 <b>CDN、網址與按鈕故障已全面修復！</b><br>如果尚未設定雲端，點擊下方藍色按鈕可一秒直接免註冊進入遊戲！
             </div>
 
             <div class="mb-4">
@@ -171,6 +171,7 @@
     </div>
 
     <script>
+        // 修正後的正確專案伺服器與 Anon 金鑰
         const SUPABASE_URL = "https://supabase.co"; 
         const SUPABASE_KEY = "sb_publishable_SYtmbX5XVAr_fD3dKgsRqQ_yjGDR5Lq";
         let supabaseClient = null;

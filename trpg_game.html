@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>免費線上 TRPG 跑團系統 - 雙模式防呆版</title>
+    <script src="https://tailwindcss.com"></script>
+    <script src="https://jsdelivr.net"></script>
+    <style>
+        body { background-color: #121214; color: #e1e1e6; font-family: sans-serif; }
+        .hidden-pane { display: none; }
+        .avatar-preview { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid #444; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-amber-500 mb-2">🎲 TRPG 跑團選角控制台</h1>
+            <p class="text-sm text-gray-400">5etools 規格聯動 ➔ 支援一鍵中英對照與防呆一鍵擲骰</p>
+        </header>
+
+        <!-- ==================== 1. 登入/註冊介面 ==================== -->
+        <div id="login-pane" class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md mx-auto">
+            <h2 class="text-xl font-bold mb-4 text-center text-amber-400">線上玩家登入系統</h2>
+            
+            <div class="mb-4 bg-amber-950/40 border border-amber-500/30 p-3 rounded text-xs text-amber-300 text-center">
+                💡 提示：若尚未設定雲端網址，請直接點擊下方<br><b>【管理員免註冊通道】</b>即可直接進入選角介面！
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">電子信箱 (Email)</label>
+                <input type="email" id="login-email" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white" placeholder="yourname@email.com">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">密碼 (Password, 需6位數以上)</label>
+                <input type="password" id="login-password" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white" placeholder="••••••••">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <button onclick="handleLogin()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded transition-all text-sm">雲端登入</button>
+                <button onclick="handleSignUp()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 rounded transition-all text-sm">雲端註冊</button>
+            </div>
+
+            <div class="border-t border-gray-700 pt-3">
+                <button onclick="enterAsGuest()" class="w-full bg-indigo-700 hover:bg-indigo-600 text-white font-bold py-2 rounded transition-all text-sm shadow">
+                    🚀 管理員免註冊通道 (單機沙盒)
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================== 2. 在線選角與功能控制台 ==================== -->
+        <div id="character-pane" class="hidden-pane bg-gray-800 p-6 rounded-lg shadow-lg">
+            <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-amber-400">我的 5etools 角色卡</h2>
+                    <p class="text-sm text-gray-400">當前模式：<span id="display-user" class="text-white font-semibold"></span></p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="toggleGameLanguage()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded font-bold text-sm transition-all">🌐 一鍵中英對照</button>
+                    <button onclick="saveCharacterData()" id="save-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded font-bold text-sm transition-all">💾 儲存角色卡</button>
+                    <button onclick="handleLogout()" class="text-xs bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded">回登入頁</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 左側：基本設定 -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-300 border-l-4 border-amber-500 pl-2">基本設定</h3>
+                    <div class="flex flex-col items-center p-4 bg-gray-900 rounded-lg">
+                        <label class="block text-xs text-gray-400 mb-2">雲端角色頭像 (正方形規格限制)</label>
+                        <img id="avatar-img" src="https://placehold.co" class="avatar-preview mb-3">
+                        <input type="file" id="avatar-input" accept="image/*" onchange="uploadAvatar(event)" class="text-xs text-gray-400 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:bg-amber-600 file:text-white cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">角色姓名</label>
+                        <input type="text" id="char-name" class="w-full bg-gray-700 rounded p-2 text-white border border-gray-600" value="吟遊詩人·小刺">
+                    </div>
+                </div>
+
+                <!-- 中間：屬性數值 -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-300 border-l-4 border-amber-500 pl-2">屬性數值</h3>
+                    <div class="space-y-2 bg-gray-900 p-4 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <label class="text-sm" data-5e-key="Strength">力量 (STR)</label>
+                            <input type="number" id="attr-str" oninput="calculateModifiers()" class="w-16 bg-gray-700 rounded p-1 text-center" value="8">
+                            <span class="w-12 text-sm font-bold text-amber-400" id="mod-str">-1</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-sm" data-5e-key="Dexterity">敏捷 (DEX)</label>
+                            <input type="number" id="attr-dex" oninput="calculateModifiers()" class="w-16 bg-gray-700 rounded p-1 text-center" value="14">
+                            <span class="w-12 text-sm font-bold text-amber-400" id="mod-dex">+2</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-sm" data-5e-key="Constitution">體質 (CON)</label>
+                            <input type="number" id="attr-con" oninput="calculateModifiers()" class="w-16 bg-gray-700 rounded p-1 text-center" value="12">
+                            <span class="w-12 text-sm font-bold text-amber-400" id="mod-con">+1</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-sm" data-5e-key="Intelligence">智力 (INT)</label>
+                            <input type="number" id="attr-int" oninput="calculateModifiers()" class="w-16 bg-gray-700 rounded p-1 text-center" value="10">
+                            <span class="w-12 text-sm font-bold text-amber-400" id="mod-int">+0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-sm" data-5e-key="Wisdom">感知 (WIS)</label>
+                            <input type="number" id="attr-wis" oninput="calculateModifiers()" class="w-16 bg-gray-700 rounded p-1 text-center" value="13">
+                            <span class="w-12 text-sm font-bold text-amber-400" id="mod-wis">+1</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <label class="text-sm" data-5e-key="Charisma">魅力 (CHA)</label>
+                            <input type="number" id="attr-cha" oninput="calculateModifiers()" class="w-16 bg-gray-700 rounded p-1 text-center" value="15">
+                            <span class="w-12 text-sm font-bold text-amber-400" id="mod-cha">+2</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側：技能一鍵擲骰 -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-300 border-l-4 border-amber-500 pl-2">防呆一鍵擲骰</h3>
+                    <div class="grid grid-cols-1 gap-2 bg-gray-900 p-3 rounded-lg">
+                        <div class="flex items-center justify-between p-2 rounded bg-gray-800">
+                            <label class="text-sm"><input type="checkbox" id="prof-performance" checked onchange="updateSkillLights()"> <span data-5e-key="Performance">表演</span></label>
+                            <button onclick="selectSkill('Performance', 'cha', 'prof-performance')" id="btn-performance" class="text-xs px-3 py-1 rounded font-bold bg-gray-700 text-gray-300">點擊準備</button>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-gray-800">
+                            <label class="text-sm"><input type="checkbox" id="prof-persuasion" checked onchange="updateSkillLights()"> <span data-5e-key="Persuasion">說服</span></label>
+                            <button onclick="selectSkill('Persuasion', 'cha', 'prof-persuasion')" id="btn-persuasion" class="text-xs px-3 py-1 rounded font-bold bg-gray-700 text-gray-300">點擊準備</button>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-gray-800">
+                            <label class="text-sm"><input type="checkbox" id="prof-stealth" onchange="updateSkillLights()"> <span data-5e-key="Stealth">隱匿</span></label>
+                            <button onclick="selectSkill('Stealth', 'dex', 'prof-stealth')" id="btn-stealth" class="text-xs px-3 py-1 rounded font-bold bg-gray-700 text-gray-300">點擊準備</button>
+                        </div>
+                    </div>
+
+                    <div id="dice-box" class="bg-amber-950/40 border border-amber-500/30 p-4 rounded-lg text-center hidden-pane">

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>免費線上 TRPG 跑團系統 - 5etools 終極多功能修復版</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://tailwindcss.com"></script>
     <!-- 修正後的 Supabase SDK 引用網址 -->
     <script src="https://jsdelivr.net"></script>
     <style>
@@ -15,6 +15,7 @@
         .map-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 2px; background-color: #2d3748; padding: 4px; border-radius: 8px; }
         .map-cell { aspect-ratio: 1; background-color: #1a202c; border: 1px solid #2d3748; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: background 0.2s; }
         .map-cell:hover { background-color: #2d3748; }
+        .token { width: 80%; height: 80%; border-radius: 50%; background-color: #f59e0b; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); object-fit: cover; }
     </style>
 </head>
 <body class="p-4 md:p-6">
@@ -86,17 +87,17 @@
                     <!-- 屬性 -->
                     <div class="space-y-1 bg-gray-950 p-2 rounded text-xs">
                         <div class="flex items-center justify-between">
-                            <label data-5e-key="Strength">力量 (STR)</label>
+                            <label data-en="Strength (STR)" data-zh="力量 (STR)">力量 (STR)</label>
                             <input type="number" id="attr-str" oninput="calculateModifiers()" class="w-12 bg-gray-700 rounded text-center" value="8">
                             <span class="w-8 text-right font-bold text-amber-400" id="mod-str">-1</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <label data-5e-key="Dexterity">敏捷 (DEX)</label>
+                            <label data-en="Dexterity (DEX)" data-zh="敏捷 (DEX)">敏捷 (DEX)</label>
                             <input type="number" id="attr-dex" oninput="calculateModifiers()" class="w-12 bg-gray-700 rounded text-center" value="14">
                             <span class="w-8 text-right font-bold text-amber-400" id="mod-dex">+2</span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <label data-5e-key="Charisma">魅力 (CHA)</label>
+                            <label data-en="Charisma (CHA)" data-zh="魅力 (CHA)">魅力 (CHA)</label>
                             <input type="number" id="attr-cha" oninput="calculateModifiers()" class="w-12 bg-gray-700 rounded text-center" value="15">
                             <span class="w-8 text-right font-bold text-amber-400" id="mod-cha">+2</span>
                         </div>
@@ -109,18 +110,18 @@
                     <div class="bg-gray-900/50 p-3 rounded-lg space-y-2">
                         <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2">2. 亮燈技能檢定</h3>
                         <div class="grid grid-cols-1 gap-1.5 text-xs">
-                            <div class="flex items-center justify-between p-1.5 rounded bg-gray-950">
-                                <label><input type="checkbox" id="prof-performance" checked onchange="updateSkillLights()"> <span data-5e-key="Performance">表演</span></label>
-                                <button onclick="selectSkill('Performance', 'cha', 'prof-performance')" id="btn-performance" class="text-[10px] px-2 py-0.5 rounded font-bold bg-gray-700">點擊準備</button>
+                            <div id="box-performance" class="flex items-center justify-between p-1.5 rounded bg-amber-500/20 border border-amber-500/40">
+                                <label><input type="checkbox" id="prof-performance" checked onchange="updateSkillLights()"> <span data-en="Performance" data-zh="表演">表演</span></label>
+                                <button onclick="selectSkill('Performance', 'cha', 'prof-performance')" id="btn-performance" class="text-[10px] px-2 py-0.5 rounded font-bold bg-amber-600 text-white">點擊準備</button>
                             </div>
-                            <div class="flex items-center justify-between p-1.5 rounded bg-gray-950">
-                                <label><input type="checkbox" id="prof-persuasion" checked onchange="updateSkillLights()"> <span data-5e-key="Persuasion">說服</span></label>
-                                <button onclick="selectSkill('Persuasion', 'cha', 'prof-persuasion')" id="btn-persuasion" class="text-[10px] px-2 py-0.5 rounded font-bold bg-gray-700">點擊準備</button>
+                            <div id="box-persuasion" class="flex items-center justify-between p-1.5 rounded bg-amber-500/20 border border-amber-500/40">
+                                <label><input type="checkbox" id="prof-persuasion" checked onchange="updateSkillLights()"> <span data-en="Persuasion" data-zh="說服">說服</span></label>
+                                <button onclick="selectSkill('Persuasion', 'cha', 'prof-persuasion')" id="btn-persuasion" class="text-[10px] px-2 py-0.5 rounded font-bold bg-amber-600 text-white">點擊準備</button>
                             </div>
                         </div>
                         <!-- 隱藏式防呆骰子面板 -->
-                        <div id="dice-box" class="bg-amber-950/30 border border-amber-500/20 p-2 rounded text-center hidden-pane">
-                            <p class="text-xs text-gray-300">就緒：<span id="target-skill-name" data-5e-key="" class="text-white font-bold"></span> (加成:<span id="target-skill-bonus" class="text-amber-400"></span>)</p>
+                        <div id="dice-box" class="bg-amber-950/50 border border-amber-500/40 p-2 rounded text-center hidden-pane">
+                            <p class="text-xs text-gray-300">就緒：<span id="target-skill-name" class="text-white font-bold"></span> (加成:<span id="target-skill-bonus" class="text-amber-400"></span>)</p>
                             <button onclick="rollDiceD20()" class="mt-1 mx-auto px-4 py-1 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded shadow">🎲 擲出 D20</button>
                         </div>
                     </div>
@@ -129,8 +130,3 @@
                     <div class="bg-gray-900/50 p-3 rounded-lg space-y-2">
                         <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2">3. 5etools 起始裝備背包</h3>
                         <div id="setup-bag-pane" class="text-xs space-y-1.5 bg-gray-950 p-2 rounded">
-                            <p class="text-amber-400 font-bold">請選擇吟遊詩人起始武器：</p>
-                            <button onclick="chooseEquipment('細劍 (Rapier)', '1d8+敏捷')" class="w-full bg-gray-700 hover:bg-gray-600 p-1.5 rounded text-left">⚔️ 方案 A: 細劍 + 琵琶樂器</button>
-                            <button onclick="chooseEquipment('短劍 (Shortsword)', '1d6+敏捷')" class="w-full bg-gray-700 hover:bg-gray-600 p-1.5 rounded text-left">⚔️ 方案 B: 短劍 + 娛樂家套裝</button>
-                        </div>
-                        <div id="actual-bag-pane" class="hidden-pane text-xs bg-gray-950 p-2 rounded space-y-1">

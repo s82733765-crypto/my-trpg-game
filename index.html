@@ -156,3 +156,125 @@
                     <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-2">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400" id="t-log-title">一鍵擲骰日誌</h3>
                         <button id="btn-clear-log" class="text-[10px] text-slate-500 hover:text-slate-300">清除</button>
+        <!-- ================================================================= -->
+        <!-- 5. 遊戲主遊玩介面 (Game Play Screen) -->
+        <!-- ================================================================= -->
+        <main id="gamePlayScreen" class="hidden max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- 左側：角色狀態與法術/裝備管理 -->
+            <section class="lg:col-span-1 space-y-6">
+                <!-- 角色基本資訊卡 -->
+                <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="w-16 h-16 bg-slate-700 rounded-full border-2 border-amber-500 overflow-hidden flex items-center justify-center">
+                            <span class="text-2xl">🎵</span>
+                        </div>
+                        <div>
+                            <h2 id="displayCharName" class="text-xl font-bold text-amber-400">Loading...</h2>
+                            <p class="text-xs text-slate-400 font-mono">D&D 5e Level 1 <span data-i18n="classBard">吟遊詩人 (Bard)</span></p>
+                        </div>
+                    </div>
+
+                    <!-- HP 與 AC -->
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <div class="bg-slate-900/60 p-3 rounded-lg border border-red-950 text-center">
+                            <span class="text-xs text-red-400 block font-semibold" data-i18n="hpLabel">生命值 (HP)</span>
+                            <span class="text-2xl font-black text-red-500 font-mono">12 / 12</span>
+                        </div>
+                        <div class="bg-slate-900/60 p-3 rounded-lg border border-blue-950 text-center">
+                            <span class="text-xs text-blue-400 block font-semibold" data-i18n="acLabel">護甲等級 (AC)</span>
+                            <span class="text-2xl font-black text-blue-400 font-mono">14</span>
+                        </div>
+                    </div>
+
+                    <!-- 1環法術位管理 -->
+                    <div class="bg-slate-900/40 p-4 rounded-lg border border-slate-700">
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="text-sm font-bold text-amber-500 flex items-center gap-1">
+                                🔮 <span data-i18n="spellSlotsTitle">1環法術位 (1st Level Slots)</span>
+                            </h3>
+                            <span id="spellSlotsCount" class="text-sm font-mono text-slate-300 font-bold bg-slate-800 px-2 py-0.5 rounded border border-slate-600">4 / 4</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mb-3" data-i18n="spellSlotsDesc">施放法術將消耗法術位，可透過長休完全恢復。</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="btnCastSpell" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-3 rounded-lg text-xs transition duration-200 shadow-md active:scale-95 flex items-center justify-center gap-1">
+                                ✨ <span data-i18n="castSpellBtn">施放法術 (-1 Slot)</span>
+                            </button>
+                            <button id="btnLongRest" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-3 rounded-lg text-xs transition duration-200 shadow-md active:scale-95 flex items-center justify-center gap-1">
+                                💤 <span data-i18n="longRestBtn">長休 (Long Rest)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 吟遊詩人起始裝備背包 -->
+                <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl">
+                    <h3 class="text-md font-bold text-amber-400 mb-3 flex items-center gap-2">
+                        🎒 <span data-i18n="inventoryTitle">吟遊詩人起始裝備 (Equipment)</span>
+                    </h3>
+                    <ul class="space-y-2 text-sm font-mono">
+                        <li class="flex justify-between items-center bg-slate-900/50 p-2.5 rounded border border-slate-700/60">
+                            <span class="text-slate-300">⚔️ <span data-i18n="itemRapier">細劍 (Rapier)</span></span>
+                            <button onclick="rollDice(20, 2, '細劍 攻擊檢定 / Rapier Attack')" class="bg-slate-700 hover:bg-amber-600 text-amber-400 hover:text-white text-xs px-2 py-1 rounded transition font-sans font-bold">D20+2</button>
+                        </li>
+                        <li class="flex justify-between items-center bg-slate-900/50 p-2.5 rounded border border-slate-700/60">
+                            <span class="text-slate-300">🛡️ <span data-i18n="itemLeather">皮甲 (Leather Armor)</span></span>
+                            <span class="text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">AC 11 + Dex</span>
+                        </li>
+                        <li class="flex justify-between items-center bg-slate-900/50 p-2.5 rounded border border-slate-700/60">
+                            <span class="text-slate-300">🪕 <span data-i18n="itemLute">琵琶/魯特琴 (Lute)</span></span>
+                            <span class="text-xs text-amber-500 font-bold bg-amber-950/40 px-2 py-0.5 rounded border border-amber-900/50" data-i18n="itemFocus">法術觸媒</span>
+                        </li>
+                        <li class="flex justify-between items-center bg-slate-900/50 p-2.5 rounded border border-slate-700/60">
+                            <span class="text-slate-300">⛺ <span data-i18n="itemPack">外交官套裝 (Diplomat's Pack)</span></span>
+                            <span class="text-xs text-slate-400 font-sans">裝有公文、墨水等</span>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 中央：8x8 戰棋格子地圖 -->
+            <section class="lg:col-span-2 space-y-6">
+                <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-200 flex items-center gap-2">
+                                🗺️ <span data-i18n="vttMapTitle">戰術棋盤地圖 (8x8 Tactical Grid)</span>
+                            </h3>
+                            <p class="text-xs text-slate-400 mt-0.5" data-i18n="vttMapDesc">點擊任何空地格子即可指派您的角色Token進行移動檢定。</p>
+                        </div>
+                        <div class="text-xs bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-700 font-mono">
+                            <span class="text-slate-400" data-i18n="currentPosLabel">當前位置:</span> 
+                            <span id="txtCurrentPos" class="text-amber-400 font-bold">(0, 0)</span>
+                        </div>
+                    </div>
+
+                    <!-- 戰棋地圖容器 -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-900 flex justify-center items-center overflow-auto">
+                        <div id="vttGridMap" class="grid grid-cols-8 grid-rows-8 gap-1 bg-slate-900 p-2 rounded-lg shadow-inner select-none w-[360px] h-[360px] sm:w-[440px] sm:h-[440px]">
+                            <!-- JavaScript 將動態生成 64 個格子 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 防呆一鍵擲骰區與動態日誌 -->
+                <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-xl grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- 快捷擲骰按鈕 -->
+                    <div class="md:col-span-1 space-y-2">
+                        <h4 class="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2" data-i18n="quickDiceTitle">快捷骰子 (Quick Dice)</h4>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="rollDice(20, 0, 'D20 纯粹骰')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-mono font-bold py-2 px-3 rounded border border-slate-600 shadow transition active:scale-95">d20</button>
+                            <button onclick="rollDice(12, 0, 'D12 伤害骰')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-mono font-bold py-2 px-3 rounded border border-slate-600 shadow transition active:scale-95">d12</button>
+                            <button onclick="rollDice(8, 0, 'D8 恢复/伤害')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-mono font-bold py-2 px-3 rounded border border-slate-600 shadow transition active:scale-95">d8</button>
+                            <button onclick="rollDice(6, 0, 'D6 武器伤害')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-mono font-bold py-2 px-3 rounded border border-slate-600 shadow transition active:scale-95">d6</button>
+                        </div>
+                        <button onclick="rollDice(100, 0, 'D100 百分骰')" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-mono font-bold py-1.5 px-3 rounded border border-slate-600 shadow transition active:scale-95">d100 (百分比)</button>
+                    </div>
+
+                    <!-- 歷史跑團擲骰日誌 -->
+                    <div class="md:col-span-2 flex flex-col h-full">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-xs font-bold text-amber-500 uppercase tracking-wider" data-i18n="diceLogTitle">房間冒險日誌 (Adventure Log)</h4>
+                            <button id="btnClearLog" class="text-[10px] text-slate-500 hover:text-red-400 font-mono transition">Clear</button>
+                        </div>
+                        <div id="diceLogBox" class="bg-slate-900 border border-slate-950 p-3 rounded-lg flex-1 h-32 overflow-y-auto font-mono text-xs space-y-1.5 shadow-inner scrollbar-thin scrollbar-thumb-slate-700">

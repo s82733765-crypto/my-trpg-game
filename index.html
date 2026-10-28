@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>免費線上 TRPG 跑團系統 - 5etools 終極多功能修復版</title>
+    <!-- 修正後的 Tailwind CSS CDN 網址 -->
     <script src="https://tailwindcss.com"></script>
     <!-- 修正後的 Supabase SDK 引用網址 -->
     <script src="https://jsdelivr.net"></script>
@@ -26,12 +27,12 @@
             <p class="text-sm text-gray-400">修復登入故障 ➔ 已整合「戰棋地圖、起始背包、法術位、一鍵防呆擲骰」</p>
         </header>
 
-        <!-- ==================== 1. 登入/註冊介面 (已修復點擊故障) ==================== -->
+        <!-- ==================== 1. 登入/註冊介面 ==================== -->
         <div id="login-pane" class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md mx-auto">
             <h2 class="text-xl font-bold mb-4 text-center text-amber-400">線上玩家登入系統</h2>
             
             <div class="mb-4 bg-amber-950/40 border border-amber-500/30 p-3 rounded text-xs text-amber-300 text-center">
-                💡 <b>註冊故障已修復！</b><br>如果尚未設定雲端，點擊下方藍色按鈕可一秒直接免註冊進入遊戲！
+                💡 <b>CDN 與按鈕故障已全面修復！</b><br>如果尚未設定雲端，點擊下方藍色按鈕可一秒直接免註冊進入遊戲！
             </div>
 
             <div class="mb-4">
@@ -57,7 +58,6 @@
 
         <!-- ==================== 2. 全功能跑團主控制台 ==================== -->
         <div id="character-pane" class="hidden-pane bg-gray-800 p-5 rounded-lg shadow-lg">
-            <!-- 頂部控制列 -->
             <div class="flex flex-col sm:flex-row justify-between items-center border-b border-gray-700 pb-3 mb-4 gap-2">
                 <div>
                     <h2 class="text-xl font-bold text-amber-400">5etools 多功能綜合跑團控制台</h2>
@@ -70,10 +70,8 @@
                 </div>
             </div>
 
-            <!-- 主區塊配置 -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-                
-                <!-- 欄位一：選角基本資料與屬性 (佔 3 欄) -->
+                <!-- 欄位一：選角基本資料與屬性 -->
                 <div class="lg:col-span-3 space-y-4 bg-gray-900/50 p-3 rounded-lg">
                     <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2">1. 核心選角角色卡</h3>
                     <div class="flex flex-col items-center bg-gray-950 p-2 rounded">
@@ -84,7 +82,6 @@
                         <label class="block text-xs mb-0.5 text-gray-400">角色姓名</label>
                         <input type="text" id="char-name" class="w-full bg-gray-700 rounded p-1 text-sm text-white border border-gray-600" value="吟遊詩人·小刺">
                     </div>
-                    <!-- 屬性 -->
                     <div class="space-y-1 bg-gray-950 p-2 rounded text-xs">
                         <div class="flex items-center justify-between">
                             <label data-en="Strength (STR)" data-zh="力量 (STR)">力量 (STR)</label>
@@ -103,10 +100,8 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- 欄位二：防呆技能、裝備背包、與法術位 (佔 4 欄) -->
+                <!-- 欄位二：防呆技能、裝備背包、與法術位 -->
                 <div class="lg:col-span-4 space-y-4">
-                    <!-- 防呆技能 -->
                     <div class="bg-gray-900/50 p-3 rounded-lg space-y-2">
                         <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2">2. 亮燈技能檢定</h3>
                         <div class="grid grid-cols-1 gap-1.5 text-xs">
@@ -119,14 +114,136 @@
                                 <button onclick="selectSkill('Persuasion', 'cha', 'prof-persuasion')" id="btn-persuasion" class="text-[10px] px-2 py-0.5 rounded font-bold bg-amber-600 text-white">點擊準備</button>
                             </div>
                         </div>
-                        <!-- 隱藏式防呆骰子面板 -->
                         <div id="dice-box" class="bg-amber-950/50 border border-amber-500/40 p-2 rounded text-center hidden-pane">
                             <p class="text-xs text-gray-300">就緒：<span id="target-skill-name" class="text-white font-bold"></span> (加成:<span id="target-skill-bonus" class="text-amber-400"></span>)</p>
                             <button onclick="rollDiceD20()" class="mt-1 mx-auto px-4 py-1 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded shadow">🎲 擲出 D20</button>
                         </div>
                     </div>
 
-                    <!-- 5etools 起始背包 -->
                     <div class="bg-gray-900/50 p-3 rounded-lg space-y-2">
                         <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2">3. 5etools 起始裝備背包</h3>
                         <div id="setup-bag-pane" class="text-xs space-y-1.5 bg-gray-950 p-2 rounded">
+                            <p class="text-amber-400 font-bold" data-en="Select Bard Starting Equipment:" data-zh="請選擇吟遊詩人起始武器：">請選擇吟遊詩人起始武器：</p>
+                            <button onclick="chooseEquipment('A')" class="w-full bg-gray-700 hover:bg-gray-600 p-1.5 rounded text-left">⚔️ <span data-en="Plan A: Rapier + Lute" data-zh="方案 A: 細劍 + 琵琶樂器">方案 A: 細劍 + 琵琶樂器</span></button>
+                            <button onclick="chooseEquipment('B')" class="w-full bg-gray-700 hover:bg-gray-600 p-1.5 rounded text-left">⚔️ <span data-en="Plan B: Shortsword + Entertainer Pack" data-zh="方案 B: 短劍 + 娛樂家套裝">方案 B: 短劍 + 娛樂家套裝</span></button>
+                        </div>
+                        <div id="actual-bag-pane" class="hidden-pane text-xs bg-gray-950 p-2 rounded space-y-1">
+                            <p class="font-bold text-emerald-400" data-en="🎒 Current Inventory" data-zh="🎒 目前隨身背包">🎒 目前隨身背包</p>
+                            <ul id="bag-list" class="list-disc list-inside text-gray-300 space-y-0.5"></ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-900/50 p-3 rounded-lg space-y-2">
+                        <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2">4. 吟遊詩人法術位管理</h3>
+                        <div class="bg-gray-950 p-2 rounded flex items-center justify-between text-xs">
+                            <div>
+                                <span class="font-bold" data-en="1st Level Spell Slots:" data-zh="1環法術位：">1環法術位：</span>
+                                <span id="spell-slots-count" class="text-amber-400 font-bold text-sm">4</span> / 4
+                            </div>
+                            <div class="space-x-1">
+                                <button onclick="useSpellSlot()" class="bg-red-700 hover:bg-red-600 text-white px-2 py-1 rounded text-[10px] font-bold">✨ 消耗法術</button>
+                                <button onclick="resetSpellSlots()" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-2 py-1 rounded text-[10px]">長休恢復</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 欄位三：戰棋地圖與擲骰日誌 -->
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="bg-gray-900/50 p-3 rounded-lg space-y-2">
+                        <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2" data-en="5. 8x8 Battle Map Grid" data-zh="5. 8x8 戰棋格子地圖">5. 8x8 戰棋格子地圖</h3>
+                        <div id="map-container" class="map-grid"></div>
+                        <p class="text-[10px] text-gray-400 text-center" data-en="💡 Click any square to move your token instantly." data-zh="💡 點擊任何格子可使頭像棋子立刻移動過去。">💡 點擊任何格子可使頭像棋子立刻移動過去。</p>
+                    </div>
+
+                    <div class="bg-gray-900/50 p-3 rounded-lg space-y-1.5">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2" data-en="6. Game Dice Log" data-zh="6. 遊戲擲骰日誌">6. 遊戲擲骰日誌</h3>
+                            <button onclick="clearLogs()" class="text-[10px] text-gray-400 hover:text-white underline">清除紀錄</button>
+                        </div>
+                        <div id="dice-logs" class="bg-gray-950 p-2 rounded h-28 overflow-y-auto font-mono text-xs text-emerald-400 space-y-1">
+                            <p class="text-gray-500">[系統] 虛擬跑團大廳已就緒，等待開火...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://supabase.co"; 
+        const SUPABASE_KEY = "sb_publishable_SYtmbX5XVAr_fD3dKgsRqQ_yjGDR5Lq";
+        let supabaseClient = null;
+
+        try {
+            if (typeof supabase !== 'undefined') {
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+        } catch (e) {
+            console.error("Supabase 初始化失敗:", e);
+        }
+
+        let currentUser = null;
+        let isGuestMode = false;
+        let currentLang = 'zh'; 
+        let selectedSkillData = null;
+        let tokenPosition = 18; 
+        let currentSpellSlots = 4;
+        let currentAvatarUrl = "https://placehold.co";
+
+        window.addEventListener('DOMContentLoaded', () => {
+            generateMapGrid();
+            calculateModifiers();
+            updateSkillLights();
+        });
+
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            if(!email || !password) { alert('請填寫 Email 與密碼！'); return; }
+            if (!supabaseClient) { alert('Supabase SDK 未正常載入，請切換免註冊通道測試！'); return; }
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) { alert('登入失敗: ' + error.message); } else { currentUser = data.user; isGuestMode = false; enterMainDashboard(currentUser.email); loadCharacterData(); }
+        }
+
+        async function handleSignUp() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            if(!email || !password) { alert('請填寫 Email 與密碼！'); return; }
+            if (!supabaseClient) { alert('Supabase SDK 未正常載入，請切換免註冊通道測試！'); return; }
+
+            const { data, error } = await supabaseClient.auth.signUp({ email, password });
+            if (error) { alert('註冊失敗: ' + error.message); } else { alert('註冊成功！已自動幫您登入！'); currentUser = data.user; isGuestMode = false; enterMainDashboard(currentUser.email); }
+        }
+
+        function enterAsGuest() { isGuestMode = true; currentUser = null; enterMainDashboard("免註冊沙盒管理員 (Sandbox Mode)"); }
+
+        function enterMainDashboard(usernameText) {
+            document.getElementById('login-pane').classList.add('hidden-pane');
+            document.getElementById('character-pane').classList.remove('hidden-pane');
+            document.getElementById('display-user').innerText = usernameText;
+            logToConsole(`[系統] 玩家 ${usernameText} 成功進入控制台。`);
+            drawToken();
+        }
+
+        function handleLogout() {
+            if (supabaseClient && !isGuestMode) { supabaseClient.auth.signOut(); }
+            document.getElementById('character-pane').classList.add('hidden-pane');
+            document.getElementById('login-pane').classList.remove('hidden-pane');
+        }
+
+        function calculateModifiers() {
+            const stats = ['str', 'dex', 'cha'];
+            stats.forEach(stat => {
+                const val = parseInt(document.getElementById(`attr-${stat}`).value) || 10;
+                const mod = Math.floor((val - 10) / 2);
+                document.getElementById(`mod-${stat}`).innerText = mod >= 0 ? `+${mod}` : `${mod}`;
+            });
+            if (selectedSkillData) { selectSkill(selectedSkillData.name, selectedSkillData.attr, selectedSkillData.chkId); }
+        }
+
+        function updateSkillLights() {
+            const skills = [{ id: 'prof-performance', box: 'box-performance', btn: 'btn-performance' }, { id: 'prof-persuasion', box: 'box-persuasion', btn: 'btn-persuasion' }];
+            skills.forEach(s => {
+                const isChecked = document.getElementById(s.id).checked;

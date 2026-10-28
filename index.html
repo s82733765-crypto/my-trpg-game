@@ -3,248 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>免費線上 TRPG 跑團系統 - 5etools 終極多功能修復版</title>
-    <!-- 修正後的 Tailwind CSS 官方 CDN 加載網址 -->
-    <script src="https://tailwindcss.com"></script>
-    <!-- 修正後的 Supabase 官方 SDK 加載網址 -->
+    <title>D&D 5e VTT 虛擬跑團平台</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://jsdelivr.net"></script>
+    <!-- Supabase JS CDN (UMD 格式，確保全域變數可安全讀取) -->
     <script src="https://jsdelivr.net"></script>
     <style>
-        body { background-color: #121214; color: #e1e1e6; font-family: sans-serif; }
-        .hidden-pane { display: none; }
-        .avatar-preview { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid #444; }
-        /* 戰棋地圖網格樣式 */
-        .map-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 2px; background-color: #2d3748; padding: 4px; border-radius: 8px; }
-        .map-cell { aspect-ratio: 1; background-color: #1a202c; border: 1px solid #2d3748; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; transition: background 0.2s; }
-        .map-cell:hover { background-color: #2d3748; }
-        .token { width: 80%; height: 80%; border-radius: 50%; background-color: #f59e0b; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.5); object-fit: cover; }
+        .grid-tile { transition: all 0.2s ease; }
+        .grid-tile:hover { background-color: rgba(239, 68, 68, 0.2); }
+        .proficient-dot { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
     </style>
 </head>
-<body class="p-4 md:p-6">
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col m-0 p-0">
 
-    <div class="max-w-6xl mx-auto">
-        <header class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-amber-500 mb-1">🎲 5etools 雲端 VTT 虛擬跑團大廳</h1>
-            <p class="text-sm text-gray-400">修復登入故障 ➔ 已整合「戰棋地圖、起始背包、法術位、一鍵防呆擲骰」</p>
-        </header>
+    <!-- 全域頂部導航欄 (語言切換) -->
+    <header class="bg-slate-950 p-4 border-b border-slate-800 flex justify-between items-center shrink-0">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🎲</span>
+            <h1 class="text-xl font-bold tracking-wider text-red-500 font-serif">D&D 5e VTT Sandbox</h1>
+        </div>
+        <button id="btn-lang" class="bg-slate-800 hover:bg-slate-700 px-4 py-1.5 rounded text-sm font-medium border border-slate-700 transition">
+            切換語言 / Switch En
+        </button>
+    </header>
 
-        <!-- ==================== 1. 登入/註冊介面 (已徹底修復 CDN) ==================== -->
-        <div id="login-pane" class="bg-gray-800 p-6 rounded-lg shadow-lg max-w-md mx-auto">
-            <h2 class="text-xl font-bold mb-4 text-center text-amber-400">線上玩家登入系統</h2>
-            
-            <div class="mb-4 bg-amber-950/40 border border-amber-500/30 p-3 rounded text-xs text-amber-300 text-center">
-                💡 <b>CDN、網址與按鈕故障已全面修復！</b><br>如果尚未設定雲端，點擊下方藍色按鈕可一秒直接免註冊進入遊戲！
-            </div>
+    <!-- 主內容容器 -->
+    <main class="flex-1 flex flex-col items-center justify-center p-4 overflow-y-auto">
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium mb-1">電子信箱 (Email)</label>
-                <input type="email" id="login-email" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white" placeholder="yourname@email.com">
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium mb-1">密碼 (Password, 需6位數以上)</label>
-                <input type="password" id="login-password" class="w-full bg-gray-700 border border-gray-600 rounded p-2 text-white" placeholder="••••••••">
+        <!-- ==================== 1. 登入 / 註冊介面 ==================== -->
+        <section id="pane-auth" class="w-full max-w-md bg-slate-950 p-8 rounded-xl border border-slate-800 shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <h2 id="t-auth-title" class="text-2xl font-bold font-serif text-slate-200">冒險者旅店</h2>
+                <p id="t-auth-subtitle" class="text-sm text-slate-400">登入您的神祕檔案以開啟漫遊</p>
             </div>
             
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <button onclick="handleLogin()" class="bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 rounded transition-all text-sm">雲端登入</button>
-                <button onclick="handleSignUp()" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 rounded transition-all text-sm">雲端註冊</button>
+            <div class="space-y-4">
+                <div>
+                    <label id="l-email" class="block text-xs uppercase tracking-wider font-semibold text-slate-400 mb-1">電子信箱 / Email</label>
+                    <input type="email" id="auth-email" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-slate-200 focus:outline-none focus:border-red-500" placeholder="your@email.com">
+                </div>
+                <div>
+                    <label id="l-pass" class="block text-xs uppercase tracking-wider font-semibold text-slate-400 mb-1">暗號密碼 / Password</label>
+                    <input type="password" id="auth-password" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-slate-200 focus:outline-none focus:border-red-500" placeholder="••••••••">
+                </div>
             </div>
 
-            <div class="border-t border-gray-700 pt-3">
-                <button onclick="enterAsGuest()" class="w-full bg-indigo-700 hover:bg-indigo-600 text-white font-bold py-2 rounded transition-all text-sm shadow">
-                    🚀 管理員免註冊通道 (直接進入選角與地圖)
+            <div class="grid grid-cols-2 gap-4 pt-2">
+                <button id="btn-login" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded transition cursor-pointer">雲端登入</button>
+                <button id="btn-register" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold py-2 rounded border border-slate-600 transition cursor-pointer">雲端註冊</button>
+            </div>
+
+            <div class="relative flex py-2 items-center text-xs text-slate-500 uppercase">
+                <div class="flex-grow border-t border-slate-800"></div>
+                <span class="mx-3" id="t-or">或者 / OR</span>
+                <div class="flex-grow border-t border-slate-800"></div>
+            </div>
+
+            <button id="btn-sandbox" class="w-full bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 font-semibold py-2.5 rounded border border-amber-500/30 transition cursor-pointer">
+                🚀 管理員免註冊通道 (純前端沙盒)
+            </button>
+        </section>
+
+
+        <!-- ==================== 2. 選角控制台 ==================== -->
+        <section id="pane-dashboard" class="hidden w-full max-w-4xl bg-slate-950 p-6 rounded-xl border border-slate-800 shadow-2xl space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                <div>
+                    <h2 id="t-dash-title" class="text-2xl font-bold text-amber-500 font-serif">英雄選角控制台</h2>
+                    <p id="t-dash-subtitle" class="text-xs text-slate-400">配置您的核心屬性與技能熟練度</p>
+                </div>
+                <button id="btn-dash-logout" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded text-slate-300">登出角色</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 六大屬性欄 -->
+                <div class="md:col-span-2 grid grid-cols-3 gap-4" id="ability-scores-container">
+                    <!-- 屬性卡片會由 JS 自動生成，包含：力量、敏捷、體質、智力、智慧、魅力 -->
+                </div>
+
+                <!-- 技能與職業特色 -->
+                <div class="bg-slate-900 p-4 rounded-lg border border-slate-800 space-y-4">
+                    <h3 id="t-skills-title" class="text-sm font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-2">特定技能檢定 (熟練)</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center bg-slate-950 p-2.5 rounded border border-slate-800">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full proficient-dot"></span>
+                                <span class="font-medium text-sm" id="k-persuasion">說服 (Persuasion)</span>
+                            </div>
+                            <button id="btn-roll-persuasion" class="bg-red-600/20 hover:bg-red-600/40 text-red-400 text-xs px-2.5 py-1 rounded border border-red-500/30 transition">🎲 檢定</button>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-950 p-2.5 rounded border border-slate-800">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full proficient-dot"></span>
+                                <span class="font-medium text-sm" id="k-performance">表演 (Performance)</span>
+                            </div>
+                            <button id="btn-roll-performance" class="bg-red-600/20 hover:bg-red-600/40 text-red-400 text-xs px-2.5 py-1 rounded border border-red-500/30 transition">🎲 檢定</button>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <div class="text-xs text-slate-400" id="t-prof-bonus">熟練加值 (Proficiency Bonus): <span class="text-red-400 font-bold">+2</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button id="btn-enter-game" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-8 py-3 rounded-lg shadow-lg text-lg transition tracking-wide cursor-pointer">
+                    ⚔️ 進入地下城世界 / Enter Game
                 </button>
             </div>
-        </div>
+        </section>
 
-        <!-- ==================== 2. 全功能跑團主控制台 ==================== -->
-        <div id="character-pane" class="hidden-pane bg-gray-800 p-5 rounded-lg shadow-lg">
-            <div class="flex flex-col sm:flex-row justify-between items-center border-b border-gray-700 pb-3 mb-4 gap-2">
-                <div>
-                    <h2 class="text-xl font-bold text-amber-400">5etools 多功能綜合跑團控制台</h2>
-                    <p class="text-xs text-gray-400">當前模式：<span id="display-user" class="text-white font-semibold"></span></p>
-                </div>
-                <div class="flex items-center space-x-2">
-                    <button onclick="toggleGameLanguage()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1 rounded text-xs font-bold transition-all">🌐 一鍵中英對照</button>
-                    <button onclick="saveCharacterData()" id="save-btn" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded text-xs font-bold transition-all">💾 儲存角色卡</button>
-                    <button onclick="handleLogout()" class="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded">回登入頁</button>
-                </div>
-            </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-                <!-- 欄位一：選角基本資料與屬性 -->
-                <div class="lg:col-span-3 space-y-4 bg-gray-900/50 p-3 rounded-lg">
-                    <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2">1. 核心選角角色卡</h3>
-                    <div class="flex flex-col items-center bg-gray-950 p-2 rounded">
-                        <img id="avatar-img" src="https://placehold.co" class="avatar-preview mb-1">
-                        <input type="file" id="avatar-input" accept="image/*" onchange="uploadAvatar(event)" class="text-[10px] text-gray-400 file:bg-amber-600 file:text-white file:border-0 file:rounded file:px-2 cursor-pointer w-full">
+        <!-- ==================== 3. 遊玩主介面 ==================== -->
+        <section id="pane-game" class="hidden w-full max-w-6xl flex flex-col lg:flex-row gap-6 h-[75vh]">
+            <!-- 左側：戰棋地圖與狀態欄 -->
+            <div class="flex-1 bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+                <div class="flex justify-between items-center mb-3">
+                    <div class="flex items-center gap-4">
+                        <h3 class="font-bold text-md text-red-400 font-serif" id="t-map-title">戰術網格 (8x8)</h3>
+                        <span class="text-xs text-slate-400" id="t-map-tip">點擊空格移動棋子</span>
                     </div>
-                    <div>
-                        <label class="block text-xs mb-0.5 text-gray-400">角色姓名</label>
-                        <input type="text" id="char-name" class="w-full bg-gray-700 rounded p-1 text-sm text-white border border-gray-600" value="吟遊詩人·小刺">
-                    </div>
-                    <div class="space-y-1 bg-gray-950 p-2 rounded text-xs">
-                        <div class="flex items-center justify-between">
-                            <label data-en="Strength (STR)" data-zh="力量 (STR)">力量 (STR)</label>
-                            <input type="number" id="attr-str" oninput="calculateModifiers()" class="w-12 bg-gray-700 rounded text-center" value="8">
-                            <span class="w-8 text-right font-bold text-amber-400" id="mod-str">-1</span>
+                    <!-- 法術位與長休 -->
+                    <div class="flex items-center gap-3 bg-slate-900 px-3 py-1.5 rounded border border-slate-800">
+                        <span class="text-xs font-semibold uppercase text-slate-400" id="t-slots-label">1環法術位:</span>
+                        <div class="flex gap-1" id="spell-slots-row">
+                            <span class="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_6px_#3b82f6] cursor-pointer slot-dot" data-idx="0"></span>
+                            <span class="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_6px_#3b82f6] cursor-pointer slot-dot" data-idx="1"></span>
                         </div>
-                        <div class="flex items-center justify-between">
-                            <label data-en="Dexterity (DEX)" data-zh="敏捷 (DEX)">敏捷 (DEX)</label>
-                            <input type="number" id="attr-dex" oninput="calculateModifiers()" class="w-12 bg-gray-700 rounded text-center" value="14">
-                            <span class="w-8 text-right font-bold text-amber-400" id="mod-dex">+2</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <label data-en="Charisma (CHA)" data-zh="魅力 (CHA)">魅力 (CHA)</label>
-                            <input type="number" id="attr-cha" oninput="calculateModifiers()" class="w-12 bg-gray-700 rounded text-center" value="15">
-                            <span class="w-8 text-right font-bold text-amber-400" id="mod-cha">+2</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- 欄位二：防呆技能、裝備背包、與法術位 -->
-                <div class="lg:col-span-4 space-y-4">
-                    <div class="bg-gray-900/50 p-3 rounded-lg space-y-2">
-                        <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2">2. 亮燈技能檢定</h3>
-                        <div class="grid grid-cols-1 gap-1.5 text-xs">
-                            <div id="box-performance" class="flex items-center justify-between p-1.5 rounded bg-amber-500/20 border border-amber-500/40">
-                                <label><input type="checkbox" id="prof-performance" checked onchange="updateSkillLights()"> <span data-en="Performance" data-zh="表演">表演</span></label>
-                                <button onclick="selectSkill('Performance', 'cha', 'prof-performance')" id="btn-performance" class="text-[10px] px-2 py-0.5 rounded font-bold bg-amber-600 text-white">點擊準備</button>
-                            </div>
-                            <div id="box-persuasion" class="flex items-center justify-between p-1.5 rounded bg-amber-500/20 border border-amber-500/40">
-                                <label><input type="checkbox" id="prof-persuasion" checked onchange="updateSkillLights()"> <span data-en="Persuasion" data-zh="說服">說服</span></label>
-                                <button onclick="selectSkill('Persuasion', 'cha', 'prof-persuasion')" id="btn-persuasion" class="text-[10px] px-2 py-0.5 rounded font-bold bg-amber-600 text-white">點擊準備</button>
-                            </div>
-                        </div>
-                        <div id="dice-box" class="bg-amber-950/50 border border-amber-500/40 p-2 rounded text-center hidden-pane">
-                            <p class="text-xs text-gray-300">就緒：<span id="target-skill-name" class="text-white font-bold"></span> (加成:<span id="target-skill-bonus" class="text-amber-400"></span>)</p>
-                            <button onclick="rollDiceD20()" class="mt-1 mx-auto px-4 py-1 bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs rounded shadow">🎲 擲出 D20</button>
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-900/50 p-3 rounded-lg space-y-2">
-                        <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2">3. 5etools 起始裝備背包</h3>
-                        <div id="setup-bag-pane" class="text-xs space-y-1.5 bg-gray-950 p-2 rounded">
-                            <p class="text-amber-400 font-bold" data-en="Select Bard Starting Equipment:" data-zh="請選擇吟遊詩人起始武器：">請選擇吟遊詩人起始武器：</p>
-                            <button onclick="chooseEquipment('A')" class="w-full bg-gray-700 hover:bg-gray-600 p-1.5 rounded text-left">⚔️ <span data-en="Plan A: Rapier + Lute" data-zh="方案 A: 細劍 + 琵琶樂器">方案 A: 細劍 + 琵琶樂器</span></button>
-                            <button onclick="chooseEquipment('B')" class="w-full bg-gray-700 hover:bg-gray-600 p-1.5 rounded text-left">⚔️ <span data-en="Plan B: Shortsword + Entertainer Pack" data-zh="方案 B: 短劍 + 娛樂家套裝">方案 B: 短劍 + 娛樂家套裝</span></button>
-                        </div>
-                        <div id="actual-bag-pane" class="hidden-pane text-xs bg-gray-950 p-2 rounded space-y-1">
-                            <p class="font-bold text-emerald-400" data-en="🎒 Current Inventory" data-zh="🎒 目前隨身背包">🎒 目前隨身背包</p>
-                            <ul id="bag-list" class="list-disc list-inside text-gray-300 space-y-0.5"></ul>
-                        </div>
-                    </div>
-
-                    <div class="bg-gray-900/50 p-3 rounded-lg space-y-2">
-                        <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2">4. 吟遊詩人法術位管理</h3>
-                        <div class="bg-gray-950 p-2 rounded flex items-center justify-between text-xs">
-                            <div>
-                                <span class="font-bold" data-en="1st Level Spell Slots:" data-zh="1環法術位：">1環法術位：</span>
-                                <span id="spell-slots-count" class="text-amber-400 font-bold text-sm">4</span> / 4
-                            </div>
-                            <div class="space-x-1">
-                                <button onclick="useSpellSlot()" class="bg-red-700 hover:bg-red-600 text-white px-2 py-1 rounded text-[10px] font-bold">✨ 消耗法術</button>
-                                <button onclick="resetSpellSlots()" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-2 py-1 rounded text-[10px]">長休恢復</button>
-                            </div>
-                        </div>
+                        <button id="btn-long-rest" class="bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-400 text-xs px-2.5 py-0.5 rounded border border-emerald-500/30 transition ml-2">⛺ 長休</button>
                     </div>
                 </div>
 
-                <!-- 欄位三：戰棋地圖與擲骰日誌 -->
-                <div class="lg:col-span-5 space-y-4">
-                    <div class="bg-gray-900/50 p-3 rounded-lg space-y-2">
-                        <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2" data-en="5. 8x8 Battle Map Grid" data-zh="5. 8x8 戰棋格子地圖">5. 8x8 戰棋格子地圖</h3>
-                        <div id="map-container" class="map-grid"></div>
-                        <p class="text-[10px] text-gray-400 text-center" data-en="💡 Click any square to move your token instantly." data-zh="💡 點擊任何格子可使頭像棋子立刻移動過去。">💡 點擊任何格子可使頭像棋子立刻移動過去。</p>
-                    </div>
-
-                    <div class="bg-gray-900/50 p-3 rounded-lg space-y-1.5">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-sm font-semibold text-gray-300 border-l-4 border-amber-500 pl-2" data-en="6. Game Dice Log" data-zh="6. 遊戲擲骰日誌">6. 遊戲擲骰日誌</h3>
-                            <button onclick="clearLogs()" class="text-[10px] text-gray-400 hover:text-white underline">清除紀錄</button>
-                        </div>
-                        <div id="dice-logs" class="bg-gray-950 p-2 rounded h-28 overflow-y-auto font-mono text-xs text-emerald-400 space-y-1">
-                            <p class="text-gray-500">[系統] 虛擬跑團大廳已就緒，等待開火...</p>
-                        </div>
-                    </div>
+                <!-- 8x8 戰棋格子 -->
+                <div class="flex-1 bg-slate-900 border border-slate-800 rounded-lg p-2 grid grid-cols-8 grid-rows-8 gap-1 aspect-square max-h-[50vh] mx-auto w-full" id="board-grid">
+                    <!-- 由 JavaScript 自動動態渲染 64 個格子 -->
                 </div>
             </div>
-        </div>
-    </div>
 
-    <script>
-        // 修正後的正確專案伺服器與 Anon 金鑰
-        const SUPABASE_URL = "https://supabase.co"; 
-        const SUPABASE_KEY = "sb_publishable_SYtmbX5XVAr_fD3dKgsRqQ_yjGDR5Lq";
-        let supabaseClient = null;
+            <!-- 右側：背包、投骰日誌控制台 -->
+            <div class="w-full lg:w-80 bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between space-y-4">
+                <!-- 吟遊詩人裝備背包 -->
+                <div class="flex-1 flex flex-col min-h-[200px]">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-800 pb-2 mb-2" id="t-bag-title">吟遊詩人起始背包 (Bard Pack)</h3>
+                    <ul class="space-y-1.5 text-sm overflow-y-auto flex-1 pr-1" id="bag-items-list">
+                        <!-- 由 JS 渲染中英雙語裝備清單 -->
+                    </ul>
+                </div>
 
-        try {
-            if (typeof supabase !== 'undefined') {
-                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            }
-        } catch (e) {
-            console.error("Supabase 初始化失敗:", e);
-        }
-
-        let currentUser = null;
-        let isGuestMode = false;
-        let currentLang = 'zh'; 
-        let selectedSkillData = null;
-        let tokenPosition = 18; 
-        let currentSpellSlots = 4;
-        let currentAvatarUrl = "https://placehold.co";
-
-        window.addEventListener('DOMContentLoaded', () => {
-            generateMapGrid();
-            calculateModifiers();
-            updateSkillLights();
-        });
-
-        async function handleLogin() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            if(!email || !password) { alert('請填寫 Email 與密碼！'); return; }
-            if (!supabaseClient) { alert('Supabase SDK 未正常載入，請切換免註冊通道測試！'); return; }
-
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) { alert('登入失敗: ' + error.message); } else { currentUser = data.user; isGuestMode = false; enterMainDashboard(currentUser.email); loadCharacterData(); }
-        }
-
-        async function handleSignUp() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            if(!email || !password) { alert('請填寫 Email 與密碼！'); return; }
-            if (!supabaseClient) { alert('Supabase SDK 未正常載入，請切換免註冊通道測試！'); return; }
-
-            const { data, error } = await supabaseClient.auth.signUp({ email, password });
-            if (error) { alert('註冊失敗: ' + error.message); } else { alert('註冊成功！已自動幫您登入！'); currentUser = data.user; isGuestMode = false; enterMainDashboard(currentUser.email); }
-        }
-
-        function enterAsGuest() { isGuestMode = true; currentUser = null; enterMainDashboard("免註冊沙盒管理員 (Sandbox Mode)"); }
-
-        function enterMainDashboard(usernameText) {
-            document.getElementById('login-pane').classList.add('hidden-pane');
-            document.getElementById('character-pane').classList.remove('hidden-pane');
-            document.getElementById('display-user').innerText = usernameText;
-            logToConsole(`[系統] 玩家 ${usernameText} 成功進入控制台。`);
-            drawToken();
-        }
-
-        function handleLogout() {
-            if (supabaseClient && !isGuestMode) { supabaseClient.auth.signOut(); }
-            document.getElementById('character-pane').classList.add('hidden-pane');
-            document.getElementById('login-pane').classList.remove('hidden-pane');
-        }
-
-        function calculateModifiers() {
-            const stats = ['str', 'dex', 'cha'];
-            stats.forEach(stat => {
-                const val = parseInt(document.getElementById(`attr-${stat}`).value) || 10;
-                const mod = Math.floor((val - 10) / 2);
-                document.getElementById(`mod-${stat}`).innerText = mod >= 0 ? `+${mod}` : `${mod}`;
-            });
-            if (selectedSkillData) { selectSkill(selectedSkillData.name, selectedSkillData.attr, selectedSkillData.chkId); }
-        }
-
-        function updateSkillLights() {
-            const skills = [{ id: 'prof-performance', box: 'box-performance', btn: 'btn-performance' }, { id: 'prof-persuasion', box: 'box-persuasion', btn: 'btn-persuasion' }];
-            skills.forEach(s => {
-                const isChecked = document.getElementById(s.id).checked;
+                <!-- 擲骰歷史日誌 -->
+                <div class="flex-1 flex flex-col min-h-[220px]">
+                    <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-2">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400" id="t-log-title">一鍵擲骰日誌</h3>
+                        <button id="btn-clear-log" class="text-[10px] text-slate-500 hover:text-slate-300">清除</button>
